@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import api_keys, auth, user
+from .routers import api_keys, auth, user, chat
 import logging
 from logging.handlers import RotatingFileHandler
 import os
@@ -21,6 +21,7 @@ app .add_middleware(
 app.include_router(api_keys.router)
 app.include_router(user.router)
 app.include_router(auth.router)
+app.include_router(chat.router)
 
 
 # ==============================================================================

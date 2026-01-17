@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
+    # RAG Settings
+    INGESTION_SERVICE_URL: str = "http://localhost:8002"
+    OPENAI_API_KEY: str | None = None
+
     # Redis settings
     REDIS_HOST: str 
     REDIS_PORT: int
