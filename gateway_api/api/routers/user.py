@@ -4,9 +4,8 @@ from sqlalchemy.orm import Session
 from core.database import get_db
 from core import models
 from sqlalchemy import or_
-from core.redis_client import get_redis
-import redis, logging
-from ..utils import cache_user_data, check_cache_user
+from sqlalchemy import or_
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -17,50 +16,13 @@ router = APIRouter(
 
 # USER crud operations
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
-def create_user(user_credentials: schemas.UserCreate, db: Session=Depends(get_db), 
-                redis_client: redis.Redis = Depends(get_redis)):
+def create_user(user_credentials: schemas.UserCreate, db: Session=Depends(get_db)):
     """
-    This module provides CRUD operations for managing user accounts in the TaskFlow application.
-    Key Features:
-    1. **User Creation**:
+    User Creation:
     - Handles the creation of new user accounts.
-    - Ensures that `email` and `username` are unique by checking both the Redis cache and the database.
-    - Implements caching for user data using Redis to optimize performance and reduce database load.
-
-    2. **User Retrieval**:
-    - Provides an endpoint to fetch user details by `user_id`.
-    - Returns user information in a structured response model.
-    
-    3. **Caching Strategy**:
-    - Caches user data upon creation using `email` and `username` as keys.
-    - Ensures quick validation of unique constraints for `email` and `username` during user creation.
-    - Uses a Time-To-Live (TTL) of 1 hour for cached data to maintain consistency.
-
-    4. **Logging**:
-    - Logs cache hits, misses, and database queries to provide insights into the application's behavior.
-
-    This module is designed to ensure efficient user management while maintaining data integrity 
-    and performance through effective caching and logging practices.
+    - Ensures that `email` and `username` are unique checks the database.
     """
-    # Check cache for email or username
-    cached_user_data = check_cache_user(redis_client, user_credentials.email) or check_cache_user(redis_client, user_credentials.username)
-
-    if cached_user_data:
-        # CACHE HIT
-        logger.info(f"Cache HIT: User data found for {user_credentials.email} or {user_credentials.username}")
-        if cached_user_data['email'] == user_credentials.email:
-            detail = "Email already registered"
-        else:
-            detail = "Username already registered"
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=detail
-        )
-    else:
-        # CACHE MISS
-        logger.info(f"Cache MISS: No user data found for {user_credentials.email} or {user_credentials.username}")
-
-    # CACHE MISS: Check in the database
+    # Check in the database
     existing_user = db.query(models.User).filter(
         or_(
             models.User.email == user_credentials.email,
@@ -88,41 +50,21 @@ def create_user(user_credentials: schemas.UserCreate, db: Session=Depends(get_db
     db.commit()
     db.refresh(new_user)
 
-    # Cache the new user data
-    logger.info(f"Caching user data for user_id: {new_user.id}")
-    cache_user_data(redis_client, {
-        "id": new_user.id,
-        "email": new_user.email,
-        "username": new_user.username,
-        "password": new_user.password
-    })
-
     return new_user
 
 
 
 @router.get("/{id}", response_model=schemas.UserResponse)
-def get_user(id: int, db: Session=Depends(get_db), redis_client: redis.Redis = Depends(get_redis)):
+def get_user(id: int, db: Session=Depends(get_db)):
     """
-    Fetch user details by user_id, utilizing Redis cache for optimization.
+    Fetch user details by user_id.
     """
-    # Check cache for user data
-    cached_user_data = check_cache_user(redis_client, f"user:profile:{id}")
+    user_search_query = db.query(models.User).filter(models.User.id == id)
+    user = user_search_query.first()
 
-    if cached_user_data:
-        logger.info(f"Cache HIT: User with id:{id} found")
-        user_data = schemas.UserResponse(**cached_user_data)
-    else:
-        logger.info(f"Cache MISS: Checking the database for User with id:{id}")
-        user_search_query = db.query(models.User).filter(models.User.id == id)
-        user = user_search_query.first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"User with id: {id} not found")
 
-        if not user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail=f"User with id: {id} not found")
-
-        # Cache the user data for future requests
-        user_data = schemas.UserResponse(**user)
-        cache_user_data(redis_client, user_data.model_dump())
-
-    return user_data
+    return user
+    
