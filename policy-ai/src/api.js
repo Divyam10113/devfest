@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Update this if your backend runs on a different port
-const API_BASE_URL = 'https://superb-exploration-production.up.railway.app/';
+const API_BASE_URL = 'http://superb-exploration.railway.internal:8000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
