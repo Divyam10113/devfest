@@ -1,4 +1,3 @@
-
 FROM python:3.10-slim
 
 WORKDIR /app
@@ -16,8 +15,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Expose port (Internal is 8000, mapped to 8003 in compose)
+# Expose port
 EXPOSE 8000
 
-# Run command
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run migrations and then start app
+CMD ["sh", "-c", "alembic upgrade head && uvicorn api.main:app --host 0.0.0.0 --port 8000"]

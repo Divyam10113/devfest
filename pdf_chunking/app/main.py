@@ -5,7 +5,11 @@ Main entry point for the microservice.
 import logging
 import os
 import tempfile
+import nest_asyncio
 from contextlib import asynccontextmanager
+
+# Apply nested asyncio patch for LlamaParse
+nest_asyncio.apply()
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
@@ -287,5 +291,6 @@ if __name__ == "__main__":
         "app.main:app",
         host=settings.host,
         port=settings.port,
-        reload=True
+        reload=True,
+        loop="asyncio"
     )

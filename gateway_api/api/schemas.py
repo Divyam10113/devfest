@@ -31,29 +31,41 @@ class Token(BaseModel):
 class Token_data(BaseModel):
     id: Optional[int] = None
 
-# ====================== API KEY SCHEMAS ========================
+# ====================== CHAT HISTORY SCHEMAS ========================
 
-# Used to display safe information about a key (NO secret value)
-class ApiKeyInfo(BaseModel):
+class ChatHistoryCreate(BaseModel):
+    query: str
+    answer: str
+
+class ChatHistoryResponse(BaseModel):
     id: int
+    query: str
+    answer: str
     created_at: datetime
-    expires_at: Optional[datetime] = None
-    is_active: bool
     class Config:
         from_attributes = True
 
-# Used ONLY for the response when a new key is created
-class ApiKeyResponse(BaseModel):
-    api_key: str
-    expires_at: Optional[datetime] = None
+# ====================== CHAT SCHEMAS ========================
 
-class createAPIkey(BaseModel):
-    days: Optional[int] = Field(
-        30, 
-        gt=0, 
-        le=121,
-        description="Number of days the key will be valid for. Must be a positive integer. Defaults to 30."
-    )
+class ChatRequest(BaseModel):
+    query: str
+    user_id: int
+    token: str
+
+class Citation(BaseModel):
+    page: Optional[int] = None
+    text: str
+
+class ChatResponse(BaseModel):
+    answer: str
+    citations: list[Citation]
+    conflict_detected: bool
+
+class FeedbackRequest(BaseModel):
+    user_id: int
+    query: str
+    corrected_answer: str
+    token: str
 
 # ====================== CHAT SCHEMAS ========================
 

@@ -3,6 +3,7 @@ from .. import oauth2, utils, schemas
 from core import models, database
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
+import logging
 
 logger = logging.getLogger(__name__)  # to make logs 
 

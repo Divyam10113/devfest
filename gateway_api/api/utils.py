@@ -4,7 +4,7 @@ import hashlib
 import logging
 from datetime import datetime
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 logger = logging.getLogger(__name__)
 
 # ====================== HASH UTILS FOR PASSWORD =========================

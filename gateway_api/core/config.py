@@ -18,7 +18,8 @@ class Settings(BaseSettings):
     HEARTBEAT_INTERVAL_SECONDS: int
 
     OPENAI_API_KEY: str
-    VECTOR_DB_URL: str = "http://ingestion-service:8002"
+    VECTOR_DB_URL: str = "http://localhost:8002"
+    COMPLIANCE_SERVICE_URL: str = "http://localhost:8003"
 
     model_config = SettingsConfigDict(
         env_file=".env",
