@@ -9,6 +9,9 @@ logger = logging.getLogger(__name__)
 
 # ====================== HASH UTILS FOR PASSWORD =========================
 
+
+# ====================== HASH UTILS FOR PASSWORD =========================
+
 def hash(password: str):
     return pwd_context.hash(password)
 

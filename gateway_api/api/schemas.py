@@ -67,3 +67,25 @@ class FeedbackRequest(BaseModel):
     corrected_answer: str
     token: str
 
+# ====================== CHAT SCHEMAS ========================
+
+class ChatRequest(BaseModel):
+    query: str
+    user_id: int
+    token: str
+
+class Citation(BaseModel):
+    page: Optional[int] = None
+    text: str
+
+class ChatResponse(BaseModel):
+    answer: str
+    citations: list[Citation]
+    conflict_detected: bool
+
+class FeedbackRequest(BaseModel):
+    user_id: int
+    query: str
+    corrected_answer: str
+    token: str
+
