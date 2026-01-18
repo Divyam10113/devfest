@@ -104,7 +104,7 @@ export default function MainPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const data = await fetch('http://superb-exploration.railway.internal:8000/chat/', {
+      const data = await fetch('https://superb-exploration-production.up.railway.app/chat/', {
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify({ query: userMsg.content, 
