@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: gateway-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: gateway_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d gateway_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ingestion-service:
+    build: ./pdf_chunking
+    container_name: ingestion-service
+    ports:
+      - "8002:8002"
+    env_file:
+      - pdf_chunking/.env
+    environment:
+      - PORT=8002
+    volumes:
+      - chroma_data:/chroma_db
+    restart: always
+
+  compliance-service:
+    build: ./compliance_service
+    container_name: compliance-service
+    ports:
+      - "8003:8003"
+    env_file:
+      - compliance_service/.env
+    environment:
+      - INGESTION_SERVICE_URL=http://ingestion-service:8002
+      # Pass API Key explicitly if not in .env, but env_file should handle it
+    depends_on:
+      - ingestion-service
+    restart: always
+
+  gateway-api:
+    build: ./gateway_api
+    container_name: gateway-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - gateway_api/.env
+    environment:
+      - DATABASE_URL=postgresql://user:password@db/gateway_db
+      - VECTOR_DB_URL=http://ingestion-service:8002
+      - COMPLIANCE_SERVICE_URL=http://compliance-service:8003
+      # Override any localhost settings from .env
+    depends_on:
+      db:
+        condition: service_healthy
+      compliance-service:
+        condition: service_started
+    restart: always
+
+volumes:
+  postgres_data:
+  chroma_data:

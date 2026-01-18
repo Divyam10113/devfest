@@ -5,6 +5,7 @@ class ChatRequest(BaseModel):
     query: str
     user_id: Optional[int] = 1
     token: Optional[str] = "demo-token"
+    history: List[str] = []
 
 class Citation(BaseModel):
     page: int

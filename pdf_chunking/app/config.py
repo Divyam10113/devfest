@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     max_file_size_mb: int = 50
     
     # Server Configuration
-    port: int = 8000
+    port: int = 8002
     host: str = "0.0.0.0"
     
     # Google Embedding Configuration (FREE API)

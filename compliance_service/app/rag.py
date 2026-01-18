@@ -39,7 +39,7 @@ async def retrieve_documents(query: str, top_k: int = 5):
             # Fallback to empty results to prevent crash, but log error
             return {"results": []}
 
-async def generate_compliance_response(query: str, search_results: dict):
+async def generate_compliance_response(query: str, search_results: dict, history: list[str] = []):
     """
     Generate an answer using Google Gemini with clear compliance guardrails.
     """
@@ -69,6 +69,9 @@ async def generate_compliance_response(query: str, search_results: dict):
         return "I could not find any specific policy documents related to your query. Please consult HR directly.", citations, False
 
     full_context = "\n\n---\n\n".join(context_parts)
+    
+    # Format History
+    history_text = "\n".join(history)
 
     # Compliance-focused System Prompt
     system_prompt = """
@@ -88,6 +91,9 @@ async def generate_compliance_response(query: str, search_results: dict):
     user_prompt = f"""
     Context from Knowledge Base:
     {full_context}
+
+    Prior Chat History:
+    {history_text}
     
     Employee Question: {query}
     

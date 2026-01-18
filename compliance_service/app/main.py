@@ -45,7 +45,7 @@ async def chat_endpoint(request: ChatRequest):
     search_data = await retrieve_documents(request.query)
     
     # 2. Generate Answer (Reasoning & Generation)
-    answer, citations, conflict = await generate_compliance_response(request.query, search_data)
+    answer, citations, conflict = await generate_compliance_response(request.query, search_data, request.history)
     
     # 3. Return formatted response
     return ChatResponse(

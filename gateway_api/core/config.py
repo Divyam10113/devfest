@@ -12,30 +12,14 @@ class Settings(BaseSettings):
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
-    # RAG Settings
-    INGESTION_SERVICE_URL: str = "http://localhost:8002"
-    OPENAI_API_KEY: str | None = None
-
-    # Redis settings
-    REDIS_HOST: str 
-    REDIS_PORT: int
-
-    """ To have TWO streams of Redis for high and lowpriority"""
-    # uncomment the following and comment the above lines 
-    
-    # REDIS_HOST_HIGH: str 
-    # REDIS_PORT_HIGH: int
-    # REDIS_HOST_LOW: str 
-    # REDIS_PORT_LOW: int
-
-    # some rate limiting constants 
-    RATE_LIMIT_PER_HOUR: int
-    USER_RATE_LIMIT_PER_HOUR: int
     MAX_FAILED_ATTEMPTS: int
     LOCKOUT_DURATION_SECONDS: int
 
     HEARTBEAT_INTERVAL_SECONDS: int
-    USER_RATE_LIMIT_PER_HOUR: int
+
+    OPENAI_API_KEY: str
+    VECTOR_DB_URL: str = "http://localhost:8002"
+    COMPLIANCE_SERVICE_URL: str = "http://localhost:8003"
 
     model_config = SettingsConfigDict(
         env_file=".env",
